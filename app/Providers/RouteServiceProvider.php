@@ -60,4 +60,9 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
     }
+
+    public function mapSMSRoutes()
+    {
+        require base_path('routes/sms.php');
+    }
 }

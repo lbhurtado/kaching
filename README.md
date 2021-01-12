@@ -7,6 +7,8 @@ Backend software for Kaching Wallet
             
 ## Units Tested
 * Contact
+    * mobile searchable [x]
+    * wallet
 
 ## Features Tested
 * Auto-register subscriber with zero balance

@@ -12,7 +12,7 @@ return [
     'classes' => [
         'models' => [
             'airtime' => \LBHurtado\Missive\Models\Airtime::class,
-            'contact' => \LBHurtado\Missive\Models\Contact::class,
+            'contact' => \App\Models\Contact::class,
             'relay' => \LBHurtado\Missive\Models\Relay::class,
             'sms' => \LBHurtado\Missive\Models\SMS::class,
             'topups' => \LBHurtado\Missive\Models\Topup::class,
