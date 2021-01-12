@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Interfaces\Wallet;
 use LBHurtado\Missive\Models\Contact as BaseContact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Contact extends BaseContact
+class Contact extends BaseContact implements Wallet
 {
-    use HasFactory;
+    use HasFactory, HasWallet;
 
     /**
      * @param string $mobile
@@ -20,4 +22,6 @@ class Contact extends BaseContact
 
         return static::where('mobile', $mobile)->first();
     }
+
+
 }
