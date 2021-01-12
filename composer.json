@@ -16,6 +16,7 @@
         "laravel/jetstream": "^2.0",
         "laravel/sanctum": "^2.6",
         "laravel/tinker": "^2.5",
+        "lbhurtado/missive": "^2.1",
         "livewire/livewire": "^2.0"
     },
     "require-dev": {
