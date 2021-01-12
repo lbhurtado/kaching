@@ -9,6 +9,7 @@ Backend software for Kaching Wallet
 * Contact
     * mobile searchable [x]
     * wallet [X]
+    * balance, desposit, withdraw 
 
 ## Features Tested
 * Auto-register subscriber with zero balance
