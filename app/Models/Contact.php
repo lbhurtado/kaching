@@ -11,6 +11,11 @@ class Contact extends BaseContact implements Wallet
 {
     use HasFactory, HasWallet;
 
+    public $casts = [
+        'extra_attributes' => 'array',
+        'balance' => 'int'
+    ];
+
     /**
      * @param string $mobile
      * @return Contact|null
@@ -22,6 +27,4 @@ class Contact extends BaseContact implements Wallet
 
         return static::where('mobile', $mobile)->first();
     }
-
-
 }
