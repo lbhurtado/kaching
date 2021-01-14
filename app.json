@@ -1,0 +1,39 @@
+{
+    "buildpacks": [
+        {
+            "url": "heroku/php"
+        },
+        {
+            "url": "heroku/nodejs"
+        }
+    ],
+    "env": {
+        "APP_NAME": "mudmod",
+        "APP_ENV": "review",
+        "APP_KEY": {
+            "generator": "secret"
+        },
+        "APP_DEBUG": "true",
+        "LOG_CHANNEL": "errorlog",
+        "DB_CONNECTION": "pgsql",
+        "CACHE_DRIVER": "file",
+        "QUEUE_CONNECTION": "sync",
+        "SESSION_DRIVER": "database"
+    },
+    "environments": {
+        "test": {
+            "scripts": {
+                "test-setup": "php artisan migrate --seed",
+                "test": "vendor/bin/phpunit --printer gh640\\\\PhpunitTap\\\\TapResultPrinter"
+            },
+            "addons": [
+                "heroku-postgresql:in-dyno"
+            ]
+        }
+    },
+    "scripts": {
+        "postdeploy": [
+            "php artisan db:seed"
+        ]
+    }
+}
