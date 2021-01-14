@@ -10,7 +10,7 @@ Backend software for Kaching Wallet
     * mobile searchable [x]
     * wallet [X]
     * balance, desposit, withdraw, transfer [x]
-    * multi-wallet
+    * multi-wallet [x]
 
 ## Features Tested
 * Auto-register subscriber with zero balance
