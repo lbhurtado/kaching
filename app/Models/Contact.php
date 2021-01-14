@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Bavix\Wallet\Traits\HasWallet;
 use Bavix\Wallet\Interfaces\Wallet;
+use Bavix\Wallet\Traits\HasWallets;
 use LBHurtado\Missive\Models\Contact as BaseContact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Contact extends BaseContact implements Wallet
 {
-    use HasFactory, HasWallet;
+    use HasFactory, HasWallet, HasWallets;
 
     public $casts = [
         'extra_attributes' => 'array',

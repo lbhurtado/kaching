@@ -119,5 +119,17 @@ return [
             'slug' => 'default',
             'meta' => [],
         ],
+        'wallets' => [
+            [
+                'name' => 'GenX',
+                'slug' => 'genx',
+                'description' => 'Wallet for GenX Games.'
+            ],
+            [
+                'name' => 'PCSO',
+                'slug' => 'pcso',
+                'description' => 'Wallet for PCSO Games.'
+            ]
+        ],
     ],
 ];
