@@ -14,3 +14,4 @@ Backend software for Kaching Wallet
 
 ## Features Tested
 * Auto-register subscriber with zero balance
+* Heroku
