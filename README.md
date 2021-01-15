@@ -8,10 +8,21 @@ Backend software for Kaching Wallet
 ## Units Tested
 * Contact
     * mobile searchable [x]
-    * wallet [X]
-    * balance, desposit, withdraw, transfer [x]
+    * default wallet [X]
+    * balance, deposit, withdraw, transfer [x]
     * multi-wallet [x]
+        * GenX
+        * PCSO
 
 ## Features Tested
-* Auto-register subscriber with zero balance
+* Auto-register subscriber
+    * zero balance
+    * exclusive PH mobile
+    
+## Deployment
 * Heroku
+    * Postgres
+    
+## TODO
+* token-based API access
+* OTP confirmation

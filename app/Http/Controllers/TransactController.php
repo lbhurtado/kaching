@@ -19,8 +19,9 @@ class TransactController extends Controller
     {
         $contact = Contact::bearing($mobile) ?? Contact::create(compact('mobile'));
         $contact->getWallet($wallet)->{$action}($amount);
+        $balance = $contact->balance;
 
-        return response(json_encode(compact('mobile', 'action', 'amount', 'wallet')), Response::HTTP_OK)
+        return response(json_encode(compact('mobile', 'action', 'amount', 'wallet', 'balance')), Response::HTTP_OK)
             ->header('Content-Type', 'text/json');
     }
 
@@ -53,8 +54,9 @@ class TransactController extends Controller
         $destination = Contact::bearing($to) ?? Contact::create(['mobile' => $to]);
 
         $origin->getWallet($wallet)->transfer($destination->getWallet($wallet), $amount);
+        $balance = $origin->balance;
 
-        return response(json_encode(compact('from', 'to', 'action', 'amount', 'wallet')), Response::HTTP_OK)
+        return response(json_encode(compact('from', 'to', 'action', 'amount', 'wallet', 'balance')), Response::HTTP_OK)
             ->header('Content-Type', 'text/json');
     }
 }

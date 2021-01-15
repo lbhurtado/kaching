@@ -25,10 +25,11 @@ class TransactAPITest extends TestCase
         $response
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'mobile' => phone($mobile, 'PH')->formatE164(),
+                'mobile' => ($contact = Contact::bearing($mobile))->mobile,
                 'action' => $action,
                 'amount' => $amount,
-                'wallet' => 'default'
+                'wallet' => 'default',
+                'balance' => $contact->balance
             ]);
         $this->assertEquals(Contact::bearing($mobile)->balance, $amount);
     }
@@ -51,10 +52,11 @@ class TransactAPITest extends TestCase
             $response
                 ->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'mobile' => phone($mobile, 'PH')->formatE164(),
+                    'mobile' => ($contact = Contact::bearing($mobile))->mobile,
                     'action' => $action,
                     'amount' => $amount,
-                    'wallet' => $wallet
+                    'wallet' => $wallet,
+                    'balance' => $contact->balance
                 ]);
             $this->assertTrue(($contact = Contact::bearing($mobile))->hasWallet($wallet));
             $this->assertEquals($amount, $contact->getWallet($wallet)->balance);
@@ -78,10 +80,11 @@ class TransactAPITest extends TestCase
         $response
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'mobile' => phone($mobile, 'PH')->formatE164(),
+                'mobile' => $contact->mobile,
                 'action' => $action,
                 'amount' => $amount,
-                'wallet' => 'default'
+                'wallet' => 'default',
+                'balance' => $contact->balance
             ]);
         $this->assertEquals( $initial_amount - $amount, $contact->balance);
     }
@@ -107,10 +110,11 @@ class TransactAPITest extends TestCase
             $response
                 ->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'mobile' => phone($mobile, 'PH')->formatE164(),
+                    'mobile' => $contact->mobile,
                     'action' => $action,
                     'amount' => $amount,
-                    'wallet' => $wallet
+                    'wallet' => $wallet,
+                    'balance' => $contact->balance
                 ]);
             $this->assertEquals( $initial_amount - $amount, $contact->getWallet($wallet)->balance);
         }
@@ -132,7 +136,7 @@ class TransactAPITest extends TestCase
         $response
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'mobile' => phone($mobile, 'PH')->formatE164(),
+                'mobile' => $contact->mobile,
                 'action' => $action,
                 'amount' => $amount,
                 'wallet' => 'default'
@@ -160,7 +164,7 @@ class TransactAPITest extends TestCase
             $response
                 ->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'mobile' => phone($mobile, 'PH')->formatE164(),
+                    'mobile' => $contact->mobile,
                     'action' => $action,
                     'amount' => $amount,
                     'wallet' => $wallet
@@ -198,7 +202,8 @@ class TransactAPITest extends TestCase
                 'from' => $origin->mobile,
                 'to' => $destination->mobile,
                 'amount' => $amount,
-                'wallet' => 'default'
+                'wallet' => 'default',
+                'balance' => $origin->balance
             ]);
 
         /*** assert ***/
@@ -239,7 +244,8 @@ class TransactAPITest extends TestCase
                     'from' => $origin->mobile,
                     'to' => $destination->mobile,
                     'amount' => $amount,
-                    'wallet' => $wallet
+                    'wallet' => $wallet,
+                    'balance' => $origin->balance
                 ]);
             $this->assertEquals(0, $origin->getWallet($wallet)->balance);
             $this->assertEquals($amount, $destination->getWallet($wallet)->balance);
