@@ -3,12 +3,26 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Models\User;
 use App\Models\Contact;
 use Symfony\Component\HttpFoundation\Response;
 
 class TransactAPITest extends TestCase
 {
     use \Illuminate\Foundation\Testing\RefreshDatabase;
+
+    /**
+     * @var User
+     */
+    protected $user;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create();
+        $this->user->createToken('developer-access');
+    }
 
     /** @test */
     public function transaction_deposit_default()
@@ -19,7 +33,7 @@ class TransactAPITest extends TestCase
         $amount = $this->faker->numberBetween(100,1000);
 
         /*** act ***/
-        $response = $this->post("/api/transact/$action/$mobile/$amount");
+        $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount");
 
         /*** assert ***/
         $response
@@ -46,7 +60,7 @@ class TransactAPITest extends TestCase
             $amount = $this->faker->numberBetween(100,1000);
 
             /*** act ***/
-            $response = $this->post("/api/transact/$action/$mobile/$amount/$wallet");
+            $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount/$wallet");
 
             /*** assert ***/
             $response
@@ -74,7 +88,7 @@ class TransactAPITest extends TestCase
         /*** act ***/
         $contact = tap(Contact::factory(compact('mobile'))->create())
             ->deposit($initial_amount = $this->faker->numberBetween(1000,10000));
-        $response = $this->post("/api/transact/$action/$mobile/$amount");
+        $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount");
 
         /*** assert ***/
         $response
@@ -104,7 +118,7 @@ class TransactAPITest extends TestCase
             /*** act ***/
             $contact->getWallet($wallet)
                 ->deposit($initial_amount = $this->faker->numberBetween(1000,10000));
-            $response = $this->post("/api/transact/$action/$mobile/$amount/$wallet");
+            $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount/$wallet");
 
             /*** assert ***/
             $response
@@ -130,7 +144,7 @@ class TransactAPITest extends TestCase
 
         /*** act ***/
         ($contact = Contact::factory(compact('mobile'))->create())->deposit($amount);
-        $response = $this->get("/api/transact/balance/$mobile");
+        $response = $this->actingAs($this->user)->get("/api/transact/balance/$mobile");
 
         /*** assert ***/
         $response
@@ -158,7 +172,7 @@ class TransactAPITest extends TestCase
 
             /*** act ***/
             $contact->getWallet($wallet)->deposit($amount);
-            $response = $this->get("/api/transact/balance/$mobile/$wallet");
+            $response = $this->actingAs($this->user)->get("/api/transact/balance/$mobile/$wallet");
 
             /*** assert ***/
             $response
@@ -183,7 +197,7 @@ class TransactAPITest extends TestCase
         $amount = $this->faker->numberBetween(100,1000);
 
         /*** act ***/
-        $response = $this->post("/api/transact/$action/$from/$to/$amount");
+        $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount");
 
         /*** assert ***/
         $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -192,7 +206,7 @@ class TransactAPITest extends TestCase
 
         /*** act ***/
         $origin->deposit($amount);
-        $response = $this->post("/api/transact/$action/$from/$to/$amount");
+        $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount");
 
         /*** act ***/
         $response
@@ -223,7 +237,7 @@ class TransactAPITest extends TestCase
             $amount = $this->faker->numberBetween(100,1000);
 
             /*** act ***/
-            $response = $this->post("/api/transact/$action/$from/$to/$amount/$wallet");
+            $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount/$wallet");
 
             /*** assert ***/
             $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -234,7 +248,7 @@ class TransactAPITest extends TestCase
 
             /*** act ***/
             $origin->getWallet($wallet)->deposit($amount);
-            $response = $this->post("/api/transact/$action/$from/$to/$amount/$wallet");
+            $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount/$wallet");
 
             /*** assert ***/
             $response

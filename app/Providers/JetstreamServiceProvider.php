@@ -51,6 +51,13 @@ class JetstreamServiceProvider extends ServiceProvider
     {
         Jetstream::defaultApiTokenPermissions(['read']);
 
+        Jetstream::permissions(([
+            'wallet:transfer',
+            'wallet:deposit',
+            'wallet:withdraw',
+            'wallet:balance',
+        ]));
+
         Jetstream::role('admin', __('Administrator'), [
             'create',
             'read',
