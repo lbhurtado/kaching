@@ -4,28 +4,25 @@ namespace App\Models;
 
 use Bavix\Wallet\Traits\HasWallet;
 use Bavix\Wallet\Interfaces\Wallet;
+use Bavix\Wallet\Traits\CanConfirm;
 use Bavix\Wallet\Traits\HasWallets;
+use Bavix\Wallet\Interfaces\Confirmable;
 use LBHurtado\Missive\Models\Contact as BaseContact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Contact extends BaseContact implements Wallet
+class Contact extends BaseContact implements Wallet, Confirmable
 {
-    use HasFactory, HasWallet, HasWallets;
-
-    public $casts = [
-        'extra_attributes' => 'array',
-        'balance' => 'int'
-    ];
+    use HasFactory, HasWallet, HasWallets, CanConfirm;
 
     /**
      * @param string $mobile
-     * @return Contact|null
+     * @return Contact
      */
-    public static function bearing(string &$mobile):? Contact //TODO change this to by
+    public static function bearing(string &$mobile): Contact
     {
         $mobile = phone($mobile, config('kaching.country'))
             ->formatE164();
 
-        return static::where('mobile', $mobile)->first();
+        return static::firstOrCreate(compact('mobile'));
     }
 }

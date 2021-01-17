@@ -34,6 +34,23 @@ class ContactTest extends TestCase
     }
 
     /** @test */
+    public function contact_will_be_persisted_using_bearing_method()
+    {
+        /*** arrange ***/
+        $mobile = phone('09187654321', config('kaching.country'))->formatE164();
+
+        /*** assert ***/
+        $this->assertNull(Contact::where(compact('mobile'))->first());
+
+        /*** act ***/
+        $contact1 = Contact::bearing($mobile);
+
+        /*** assert ***/
+        $this->assertNotNull($contact2 = Contact::where(compact('mobile'))->first());
+        $this->assertTrue($contact1->is($contact2));
+    }
+
+    /** @test */
     public function contact_has_zero_balance_at_the_onset()
     {
         /*** assert ***/

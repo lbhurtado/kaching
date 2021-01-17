@@ -9,6 +9,11 @@ use Illuminate\Validation\ValidationException;
 
 class TokenController extends Controller
 {
+    /**
+     * @param TokenRequest $request
+     * @return mixed
+     * @throws ValidationException
+     */
     public function __invoke(TokenRequest $request)
     {
         $user = User::where('email', $request->email)->first();

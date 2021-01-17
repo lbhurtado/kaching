@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Bavix\Wallet\Models\Transaction;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Contact;
@@ -30,6 +31,7 @@ class TransactAPITest extends TestCase
         /*** arrange ***/
         $mobile = '09171234567';
         $action = 'deposit';
+        $contact = Contact::bearing($mobile);
         $amount = $this->faker->numberBetween(100,1000);
 
         /*** act ***/
@@ -39,13 +41,23 @@ class TransactAPITest extends TestCase
         $response
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'mobile' => ($contact = Contact::bearing($mobile))->mobile,
+                'mobile' => $contact->mobile,
                 'action' => $action,
                 'amount' => $amount,
                 'wallet' => 'default',
-                'balance' => $contact->balance
+                'balance' => $contact->balance,
+                'confirmed' => false,
             ]);
-        $this->assertEquals(Contact::bearing($mobile)->balance, $amount);
+        $this->assertEquals(0, $contact->balance);
+
+        /*** arrange ***/
+        $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+
+        /*** act ***/
+        $contact->getWallet('default')->confirm($explicitTransaction);
+
+        /*** assert ***/
+        $this->assertEquals($amount, $contact->balance);
     }
 
     /** @test */
@@ -54,6 +66,7 @@ class TransactAPITest extends TestCase
         /*** arrange ***/
         $mobile = '09171234567';
         $action = 'deposit';
+        $contact = Contact::bearing($mobile);
 
         foreach (['genx', 'pcso'] as $wallet) {
             /*** arrange ***/
@@ -66,14 +79,24 @@ class TransactAPITest extends TestCase
             $response
                 ->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'mobile' => ($contact = Contact::bearing($mobile))->mobile,
+                    'mobile' => $contact->mobile,
                     'action' => $action,
                     'amount' => $amount,
                     'wallet' => $wallet,
-                    'balance' => $contact->balance
+                    'balance' => ($digital_wallet = $contact->getWallet($wallet))->balance,
+                    'confirmed' => false
                 ]);
-            $this->assertTrue(($contact = Contact::bearing($mobile))->hasWallet($wallet));
-            $this->assertEquals($amount, $contact->getWallet($wallet)->balance);
+            $this->assertTrue($contact->hasWallet($wallet));
+            $this->assertEquals(0, $digital_wallet->balance);
+
+            /*** arrange ***/
+            $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+
+            /*** act ***/
+            $contact->getWallet($wallet)->confirm($explicitTransaction);
+
+            /*** assert ***/
+            $this->assertEquals($amount, $digital_wallet->balance);
         }
     }
 
@@ -87,7 +110,7 @@ class TransactAPITest extends TestCase
 
         /*** act ***/
         $contact = tap(Contact::factory(compact('mobile'))->create())
-            ->deposit($initial_amount = $this->faker->numberBetween(1000,10000));
+            ->deposit($initial_amount = $this->faker->numberBetween(1000,10000), [], true);
         $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount");
 
         /*** assert ***/
@@ -98,9 +121,19 @@ class TransactAPITest extends TestCase
                 'action' => $action,
                 'amount' => $amount,
                 'wallet' => 'default',
-                'balance' => $contact->balance
+                'balance' => $contact->balance,
+                'confirmed' => false
             ]);
-        $this->assertEquals( $initial_amount - $amount, $contact->balance);
+        $this->assertEquals( $initial_amount, $contact->balance);
+
+        /*** arrange ***/
+        $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+
+        /*** act ***/
+        $contact->getWallet('default')->confirm($explicitTransaction);
+
+        /*** assert ***/
+        $this->assertEquals($initial_amount - $amount, $contact->balance);
     }
 
     /** @test */
@@ -120,6 +153,9 @@ class TransactAPITest extends TestCase
                 ->deposit($initial_amount = $this->faker->numberBetween(1000,10000));
             $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount/$wallet");
 
+            /*** arrange ***/
+            $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+
             /*** assert ***/
             $response
                 ->assertStatus(Response::HTTP_OK)
@@ -128,9 +164,19 @@ class TransactAPITest extends TestCase
                     'action' => $action,
                     'amount' => $amount,
                     'wallet' => $wallet,
-                    'balance' => $contact->balance
+                    'balance' => ($digital_wallet = $contact->getWallet($wallet))->balance,
+                    'confirmed' => false
                 ]);
-            $this->assertEquals( $initial_amount - $amount, $contact->getWallet($wallet)->balance);
+            $this->assertEquals( $initial_amount, $digital_wallet->balance);
+
+            /*** arrange ***/
+            $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+
+            /*** act ***/
+            $contact->getWallet($wallet)->confirm($explicitTransaction);
+
+            /*** assert ***/
+            $this->assertEquals($initial_amount - $amount, $digital_wallet->balance);
         }
     }
 
@@ -247,7 +293,7 @@ class TransactAPITest extends TestCase
                 $this->assertNotNull($destination = Contact::bearing($to));
 
             /*** act ***/
-            $origin->getWallet($wallet)->deposit($amount);
+            $origin->getWallet($wallet)->deposit($amount + 1000);
             $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount/$wallet");
 
             /*** assert ***/
@@ -259,10 +305,22 @@ class TransactAPITest extends TestCase
                     'to' => $destination->mobile,
                     'amount' => $amount,
                     'wallet' => $wallet,
-                    'balance' => $origin->balance
+                    'balance' => $origin->getWallet($wallet)->balance
                 ]);
-            $this->assertEquals(0, $origin->getWallet($wallet)->balance);
+            $this->assertEquals(1000, $origin->getWallet($wallet)->balance);
             $this->assertEquals($amount, $destination->getWallet($wallet)->balance);
         }
+    }
+
+    protected function getImplicitTransaction(Contact $contact, string $wallet, string $type, string $amount, $created_at)
+    {
+        $wallet_id = $contact->getWallet($wallet)->id;
+
+        return $contact->transactions()->where(compact('wallet_id', 'type', 'amount', 'created_at'))->first();
+    }
+
+    protected function getExplicitTransaction(string $uuid)
+    {
+        return Transaction::where('uuid', $uuid)->first();
     }
 }
