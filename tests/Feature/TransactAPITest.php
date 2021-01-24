@@ -51,12 +51,22 @@ class TransactAPITest extends TestCase
         $this->assertEquals(0, $contact->balance);
 
         /*** arrange ***/
-        $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+        $action = 'confirm';
+        $uuid = $response->json('uuid');
 
         /*** act ***/
-        $contact->getWallet('default')->confirm($explicitTransaction);
+        $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid");
 
         /*** assert ***/
+        $response->assertStatus(Response::HTTP_OK)
+            ->assertJson([
+                'mobile' => $contact->mobile,
+                'action' => $action,
+                'amount' => $amount,
+                'wallet' => 'default',
+                'balance' => $contact->balance,
+                'confirmed' => true
+            ]);
         $this->assertEquals($amount, $contact->balance);
     }
 
@@ -65,11 +75,11 @@ class TransactAPITest extends TestCase
     {
         /*** arrange ***/
         $mobile = '09171234567';
-        $action = 'deposit';
         $contact = Contact::bearing($mobile);
 
         foreach (['genx', 'pcso'] as $wallet) {
             /*** arrange ***/
+            $action = 'deposit';
             $amount = $this->faker->numberBetween(100,1000);
 
             /*** act ***/
@@ -90,12 +100,22 @@ class TransactAPITest extends TestCase
             $this->assertEquals(0, $digital_wallet->balance);
 
             /*** arrange ***/
-            $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+            $action = 'confirm';
+            $uuid = $response->json('uuid');
 
             /*** act ***/
-            $contact->getWallet($wallet)->confirm($explicitTransaction);
+            $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid");
 
             /*** assert ***/
+            $response->assertStatus(Response::HTTP_OK)
+                ->assertJson([
+                    'mobile' => $contact->mobile,
+                    'action' => $action,
+                    'amount' => $amount,
+                    'wallet' => $wallet,
+                    'balance' => $digital_wallet->balance,
+                    'confirmed' => true
+                ]);
             $this->assertEquals($amount, $digital_wallet->balance);
         }
     }

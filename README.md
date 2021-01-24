@@ -16,13 +16,16 @@ Backend software for Kaching Wallet
 
 ## Features Tested
 * Auto-register subscriber
-    * zero balance
-    * exclusive PH mobile
-    
+    * zero balance [x]
+    * exclusive PH mobile [x]
+    * token-based API access [x]   
+     
 ## Deployment
 * Heroku
-    * Postgres
+    * Postgres [x]
     
 ## TODO
-* token-based API access
-* OTP confirmation
+* Wallets
+    * On-demand
+    * Dynamic
+    
