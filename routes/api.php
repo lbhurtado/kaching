@@ -35,8 +35,9 @@ Route::middleware(['auth:sanctum'])->prefix('transact')->group(function() {
         ->where('action', 'balance')
         ->where('mobile', '^(09|\+?639)\d{9}$');
 
-    Route::post('{action}/{uuid}', [TransactController::class, 'confirm'])
-        ->where('action', 'confirm');
+    Route::post('{action}/{uuid}/{otp}', [TransactController::class, 'confirm'])
+        ->where('action', 'confirm')
+        ->where('otp', '[0-9]+');
 });
 
 Route::post('/token', TokenController::class);

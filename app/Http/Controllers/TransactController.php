@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use OTPHP\Factory;
 use App\Models\Contact;
+use OTPHP\TOTPInterface;
 use Bavix\Wallet\Models\Wallet;
 use Bavix\Wallet\Models\Transaction;
 use App\Http\Resources\CreditResource;
@@ -25,7 +27,7 @@ class TransactController extends Controller
     public function credit(string $action, string $mobile, int $amount, string $wallet = 'default')
     {
         $transaction = Contact::bearing($mobile)
-            ->credit($amount, $wallet, $action, self::UNCONFIRMED, ['action' => $action]);
+            ->credit($amount, $wallet, $action, self::UNCONFIRMED);
 
         return response(new CreditResource($transaction), Response::HTTP_OK);
     }
@@ -66,15 +68,19 @@ class TransactController extends Controller
     /**
      * @param string $action
      * @param string $uuid
+     * @param string $otp
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function confirm(string $action, string $uuid)
+    public function confirm(string $action, string $uuid, string $otp)
     {
-        $transaction = tap($this->getTransaction($uuid), function ($transaction) {
-            $transaction->wallet->confirm($transaction);
-        });
+        $transaction = $this->getTransaction($uuid);
 
-        return response(new ConfirmResource($transaction, $action), Response::HTTP_OK);
+        if ($this->getTOTP($transaction)->verify($otp)) {
+            $transaction->wallet->confirm($transaction);
+            return response(new ConfirmResource($transaction, $action), Response::HTTP_OK);
+        }
+
+        return response()->json(['uuid' => $uuid], Response::HTTP_PRECONDITION_FAILED);
     }
 
     /**
@@ -100,5 +106,10 @@ class TransactController extends Controller
     protected function getTransaction(string $uuid)
     {
         return Transaction::where('uuid', $uuid)->first();
+    }
+
+    public function getTOTP($transaction): TOTPInterface
+    {
+        return Factory::loadFromProvisioningUri($transaction->meta['otp_uri']);
     }
 }

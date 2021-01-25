@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\SendCreditActionOTP;
 use Tests\TestCase;
 use App\Models\Contact;
 
@@ -96,5 +98,18 @@ class ContactTest extends TestCase
 
         /*** act ***/
         $this->contact->deposit($amount);
+    }
+
+    /** @test */
+    public function contact_credit_sends_otp()
+    {
+        /*** arrange ***/
+        Notification::fake();
+
+        /*** act ***/
+        $this->contact->credit(100);
+
+        /*** assert ***/
+        Notification::assertSentTo($this->contact, SendCreditActionOTP::class);
     }
 }

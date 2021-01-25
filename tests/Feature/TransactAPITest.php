@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use OTPHP\Factory;
+use OTPHP\TOTPInterface;
+
 use Bavix\Wallet\Models\Transaction;
 use Tests\TestCase;
 use App\Models\User;
@@ -53,9 +56,11 @@ class TransactAPITest extends TestCase
         /*** arrange ***/
         $action = 'confirm';
         $uuid = $response->json('uuid');
+        $transaction = Transaction::where('uuid', $uuid)->first();;
+        $otp = $this->getTOTP($transaction)->now();
 
         /*** act ***/
-        $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid");
+        $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid/$otp");
 
         /*** assert ***/
         $response->assertStatus(Response::HTTP_OK)
@@ -68,6 +73,11 @@ class TransactAPITest extends TestCase
                 'confirmed' => true
             ]);
         $this->assertEquals($amount, $contact->balance);
+    }
+
+    protected function getTOTP($transaction): TOTPInterface
+    {
+        return Factory::loadFromProvisioningUri($transaction->meta['otp_uri']);
     }
 
     /** @test */
@@ -102,9 +112,11 @@ class TransactAPITest extends TestCase
             /*** arrange ***/
             $action = 'confirm';
             $uuid = $response->json('uuid');
+            $transaction = Transaction::where('uuid', $uuid)->first();;
+            $otp = $this->getTOTP($transaction)->now();
 
             /*** act ***/
-            $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid");
+            $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid/$otp");
 
             /*** assert ***/
             $response->assertStatus(Response::HTTP_OK)
