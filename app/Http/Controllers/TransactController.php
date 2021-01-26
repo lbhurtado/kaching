@@ -108,7 +108,7 @@ class TransactController extends Controller
         return Transaction::where('uuid', $uuid)->first();
     }
 
-    public function getTOTP($transaction): TOTPInterface
+    public function getTOTP(Transaction $transaction): TOTPInterface
     {
         return Factory::loadFromProvisioningUri($transaction->meta['otp_uri']);
     }

@@ -7,12 +7,12 @@ use Illuminate\Bus\Queueable;
 use Bavix\Wallet\Models\Transaction;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Notifications\SendCreditActionOTP;
+use App\Notifications\CreditApproval;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 
-class ProvisionURIToTransaction implements ShouldQueue
+class EmbedTransactionOTP implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -56,7 +56,7 @@ class ProvisionURIToTransaction implements ShouldQueue
      */
     protected function sendOTP(): void
     {
-        $this->transaction->payable->notify(new SendCreditActionOTP($this->transaction));
+        $this->transaction->payable->notify(new CreditApproval($this->transaction));
     }
 
     /**

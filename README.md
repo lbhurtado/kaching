@@ -19,7 +19,7 @@ Backend software for Kaching Wallet
     * zero balance [x]
     * exclusive PH mobile [x]
     * token-based API access [x]   
-    * OTP for deposit and withdrawal [x]
+    * OTP via SMS for deposit and withdrawal [x]
      
 ## Deployment
 * Heroku
@@ -29,6 +29,4 @@ Backend software for Kaching Wallet
 * Wallets
     * On-demand
     * Dynamic
-    * OTP from database notification to SMS
-    * App/Models/Transaction inherit from Bavix\Wallet\Models\Transaction
     

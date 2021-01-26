@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c7423ed04064898932a18fc65ad9440",
+    "content-hash": "8aa136671133e694e1d75a8528955921",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2492,6 +2492,75 @@
             "time": "2020-11-21T09:58:21+00:00"
         },
         {
+            "name": "lbhurtado/engagespark",
+            "version": "v3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lbhurtado/engagespark.git",
+                "reference": "16ffe16fd1ac9ec64923df4953514e9bd3d131e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lbhurtado/engagespark/zipball/16ffe16fd1ac9ec64923df4953514e9bd3d131e6",
+                "reference": "16ffe16fd1ac9ec64923df4953514e9bd3d131e6",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/enumeration": "^6.0",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.0.1",
+                "illuminate/support": "^8.0",
+                "lbhurtado/common": "^2.0",
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.4",
+                "phpunit/phpunit": "^9.3.3"
+            },
+            "suggest": {
+                "lbhurtado/missive": "Add SMS domain to a Laravel project - route, models, migrations, jobs, notifications, etc."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LBHurtado\\EngageSpark\\EngageSparkServiceProvider"
+                    ],
+                    "aliases": {
+                        "EngageSpark": "LBHurtado\\EngageSpark\\EngageSparkFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LBHurtado\\EngageSpark\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lester Hurtado",
+                    "email": "lester@hurtado.ph",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This package makes it easy to send SMS notifications and topups via engageSPARK with Laravel.",
+            "homepage": "https://github.com/lbhurtado/engagespark",
+            "keywords": [
+                "engagespark",
+                "lbhurtado",
+                "sms"
+            ],
+            "support": {
+                "issues": "https://github.com/lbhurtado/engagespark/issues",
+                "source": "https://github.com/lbhurtado/engagespark/tree/v3.0"
+            },
+            "time": "2020-11-21T12:00:27+00:00"
+        },
+        {
             "name": "lbhurtado/missive",
             "version": "v2.1.0",
             "source": {
@@ -2563,6 +2632,69 @@
                 "source": "https://github.com/lbhurtado/missive/tree/v2.1.0"
             },
             "time": "2021-01-04T08:02:56+00:00"
+        },
+        {
+            "name": "lbhurtado/sms",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lbhurtado/sms.git",
+                "reference": "1d1da426699237c90e7c537cc22d0233c0480428"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lbhurtado/sms/zipball/1d1da426699237c90e7c537cc22d0233c0480428",
+                "reference": "1d1da426699237c90e7c537cc22d0233c0480428",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^8.0",
+                "lbhurtado/common": "^2.0",
+                "lbhurtado/engagespark": "^3.0",
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.4",
+                "phpunit/phpunit": "^9.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LBHurtado\\SMS\\SMSServiceProvider"
+                    ],
+                    "aliases": {
+                        "SMS": "LBHurtado\\SMS\\SMSFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LBHurtado\\SMS\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lester Hurtado",
+                    "email": "lester@hurtado.ph",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Driver-based SMS component in Laravel inspired by the tutorial of Orobo Lucky",
+            "homepage": "https://github.com/lbhurtado/sms",
+            "keywords": [
+                "lbhurtado",
+                "sms"
+            ],
+            "support": {
+                "issues": "https://github.com/lbhurtado/sms/issues",
+                "source": "https://github.com/lbhurtado/sms/tree/v2.0.2"
+            },
+            "time": "2020-11-23T02:56:30+00:00"
         },
         {
             "name": "lbhurtado/tactician",

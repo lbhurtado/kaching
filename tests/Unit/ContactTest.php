@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\SendCreditActionOTP;
+use App\Notifications\CreditApproval;
 use Tests\TestCase;
 use App\Models\Contact;
 
@@ -110,6 +110,6 @@ class ContactTest extends TestCase
         $this->contact->credit(100);
 
         /*** assert ***/
-        Notification::assertSentTo($this->contact, SendCreditActionOTP::class);
+        Notification::assertSentTo($this->contact, CreditApproval::class);
     }
 }

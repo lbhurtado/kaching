@@ -19,6 +19,7 @@
         "laravel/sanctum": "^2.6",
         "laravel/tinker": "^2.5",
         "lbhurtado/missive": "^2.1",
+        "lbhurtado/sms": "^2.0",
         "livewire/livewire": "^2.0"
     },
     "require-dev": {
