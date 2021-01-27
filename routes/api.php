@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{TokenController, TransactController};
+use App\Http\Controllers\{TransactController};
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,4 +40,4 @@ Route::middleware(['auth:sanctum'])->prefix('transact')->group(function() {
         ->where('otp', '[0-9]+');
 });
 
-Route::post('/token', TokenController::class);
+Route::post('/token', \App\Actions\Wallet\CreateUserToken::class);

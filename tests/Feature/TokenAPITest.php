@@ -4,28 +4,22 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use Symfony\Component\HttpFoundation\Response;
 use Laravel\Sanctum\Sanctum;
+use Symfony\Component\HttpFoundation\Response;
 
 class TokenAPITest extends TestCase
 {
     use \Illuminate\Foundation\Testing\RefreshDatabase;
 
-    protected $user;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->user = User::factory()->create();
-    }
-
     /** @test */
-    public function token_default()
+    public function token_from_default_email_is_ok()
     {
         /*** arrange ***/
+        $email = decrypt(config('kaching.seed.user.email'));
+        $user = User::factory(compact('email'))->create();
+
         $params = [
-            'email' => $this->user->email,
+            'email' => $user->email,
             'password' => 'password',
             'device_name' => 'Android'
         ];
@@ -38,7 +32,27 @@ class TokenAPITest extends TestCase
 
         /*** assert ***/
         $response->assertStatus(Response::HTTP_OK);
-        $this->assertTrue($this->user->is($this->getUserFromToken($token)));
+        $this->assertTrue($user->is($this->getUserFromToken($token)));
+    }
+
+    /** @test */
+    public function token_from_non_default_email_is_not_ok()
+    {
+        /*** arrange ***/
+        $user = User::factory()->create();
+
+        $params = [
+            'email' => $user->email,
+            'password' => 'password',
+            'device_name' => 'Android'
+        ];
+
+        /*** act ***/
+        $response = $this->post("/api/token", $params);
+
+
+        /*** assert ***/
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
 

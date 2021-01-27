@@ -19,7 +19,7 @@ Backend software for Kaching Wallet
     * zero balance [x]
     * exclusive PH mobile [x]
     * token-based API access [x]   
-    * OTP via SMS for deposit and withdrawal [x]
+    * OTP via SMS for deposits and withdrawals [x]
      
 ## Deployment
 * Heroku
@@ -29,4 +29,10 @@ Backend software for Kaching Wallet
 * Wallets
     * On-demand
     * Dynamic
+    
+* SMS Commands
+    * balance
+    * cash out
+    * transfer | pasa
+    * verify
     
