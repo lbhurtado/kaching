@@ -52,24 +52,6 @@ class TransactController extends Controller
     }
 
     /**
-     * @param string $action
-     * @param string $uuid
-     * @param string $otp
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
-     */
-    public function confirm(string $action, string $uuid, string $otp)
-    {
-        $transaction = $this->getTransaction($uuid);
-
-        if ($this->getTOTP($transaction)->verify($otp)) {
-            $transaction->wallet->confirm($transaction);
-            return response(new ConfirmResource($transaction, $action), Response::HTTP_OK);
-        }
-
-        return response()->json(['uuid' => $uuid], Response::HTTP_PRECONDITION_FAILED);
-    }
-
-    /**
      * @param Contact $origin
      * @param Contact $destination
      * @param string $wallet

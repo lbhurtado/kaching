@@ -13,4 +13,10 @@ return [
             'name' =>  env('SEED_TEAM_NAME','Team 537')
         ],
     ],
+    'keywords' => [
+        'transactions' => [
+            'balance' => env('KEYWORD_TRANSACTION_BALANCE', 'balance'),
+            'confirm' => env('KEYWORD_TRANSACTION_CONFIRM', 'confirm')
+        ],
+    ],
 ];

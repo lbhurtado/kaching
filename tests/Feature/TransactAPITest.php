@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use OTPHP\Factory;
-use OTPHP\TOTPInterface;
-
-use Bavix\Wallet\Models\Transaction;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Contact;
+use Bavix\Wallet\Models\Transaction;
+use App\Actions\Wallet\InstantiateOTPObject;
+use App\Actions\Wallet\InstantiateTransaction;
 use Symfony\Component\HttpFoundation\Response;
 
 class TransactAPITest extends TestCase
@@ -56,28 +55,30 @@ class TransactAPITest extends TestCase
         /*** arrange ***/
         $action = 'confirm';
         $uuid = $response->json('uuid');
-        $transaction = Transaction::where('uuid', $uuid)->first();;
-        $otp = $this->getTOTP($transaction)->now();
+        $transaction = InstantiateTransaction::run($uuid);
+        $otp = InstantiateOTPObject::run($transaction)->now();
 
         /*** act ***/
-        $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid/$otp");
+        $response = $this->actingAs($this->user)
+            ->postJson(
+                "/api/transact/$action",
+                $data = compact('uuid', 'otp'),
+                $this->getHeaderData($data)
+            );
 
         /*** assert ***/
         $response->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'mobile' => $contact->mobile,
-                'action' => $action,
-                'amount' => $amount,
-                'wallet' => 'default',
-                'balance' => $contact->balance,
-                'confirmed' => true
+                'data' => [
+                    'mobile' => $contact->mobile,
+                    'action' => $action,
+                    'amount' => $amount,
+                    'wallet' => 'default',
+                    'balance' => $contact->balance,
+                    'confirmed' => true
+                ]
             ]);
         $this->assertEquals($amount, $contact->balance);
-    }
-
-    protected function getTOTP($transaction): TOTPInterface
-    {
-        return Factory::loadFromProvisioningUri($transaction->meta['otp_uri']);
     }
 
     /** @test */
@@ -112,21 +113,28 @@ class TransactAPITest extends TestCase
             /*** arrange ***/
             $action = 'confirm';
             $uuid = $response->json('uuid');
-            $transaction = Transaction::where('uuid', $uuid)->first();;
-            $otp = $this->getTOTP($transaction)->now();
+            $transaction = InstantiateTransaction::run($uuid);
+            $otp = InstantiateOTPObject::run($transaction)->now();
 
             /*** act ***/
-            $response = $this->actingAs($this->user)->post("/api/transact/$action/$uuid/$otp");
+            $response = $this->actingAs($this->user)
+                ->postJson(
+                    "/api/transact/$action",
+                    $data = compact('uuid', 'otp'),
+                    $this->getHeaderData($data)
+                );
 
             /*** assert ***/
             $response->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'mobile' => $contact->mobile,
-                    'action' => $action,
-                    'amount' => $amount,
-                    'wallet' => $wallet,
-                    'balance' => $digital_wallet->balance,
-                    'confirmed' => true
+                    'data' => [
+                        'mobile' => $contact->mobile,
+                        'action' => $action,
+                        'amount' => $amount,
+                        'wallet' => $wallet,
+                        'balance' => $digital_wallet->balance,
+                        'confirmed' => true
+                    ]
                 ]);
             $this->assertEquals($amount, $digital_wallet->balance);
         }
@@ -212,30 +220,6 @@ class TransactAPITest extends TestCase
         }
     }
 
-//    /** @test */
-//    public function transaction_balance_default()
-//    {
-//        /*** arrange ***/
-//        $mobile = '09171234567';
-//        $action = 'balance';
-//        $amount = $this->faker->numberBetween(100,1000);
-//
-//        /*** act ***/
-//        ($contact = Contact::factory(compact('mobile'))->create())->deposit($amount);
-//        $response = $this->actingAs($this->user)->get("/api/transact/balance/$mobile");
-//
-//        /*** assert ***/
-//        $response
-//            ->assertStatus(Response::HTTP_OK)
-//            ->assertJson([
-//                'mobile' => $contact->mobile,
-//                'action' => $action,
-//                'amount' => $amount,
-//                'wallet' => 'default'
-//            ]);
-//        $this->assertEquals(0, $contact->balance - $amount);
-//    }
-
     /** @test */
     public function transaction_balance_default()
     {
@@ -265,10 +249,12 @@ class TransactAPITest extends TestCase
         $response
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'mobile' => $contact->mobile,
-                'action' => $action,
-                'amount' => $amount,
-                'wallet' => 'default'
+                'data' => [
+                    'mobile' => $contact->mobile,
+                    'action' => $action,
+                    'amount' => $amount,
+                    'wallet' => 'default'
+                ]
             ]);
         $this->assertEquals(0, $contact->balance - $amount);
     }
@@ -304,10 +290,12 @@ class TransactAPITest extends TestCase
             $response
                 ->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'mobile' => $contact->mobile,
-                    'action' => $action,
-                    'amount' => $amount,
-                    'wallet' => $wallet
+                    'data' => [
+                        'mobile' => $contact->mobile,
+                        'action' => $action,
+                        'amount' => $amount,
+                        'wallet' => $wallet
+                    ]
                 ]);
             $this->assertEquals(0, $contact->getWallet($wallet)->balance - $amount);
         }
@@ -402,5 +390,14 @@ class TransactAPITest extends TestCase
     protected function getExplicitTransaction(string $uuid)
     {
         return Transaction::where('uuid', $uuid)->first();
+    }
+
+    protected function getHeaderData($data): array
+    {
+        return [
+            'CONTENT_LENGTH' => mb_strlen(json_encode($data), '8bit'),
+            'CONTENT_TYPE' => 'application/json',
+            'Accept' => 'application/json'
+        ];
     }
 }

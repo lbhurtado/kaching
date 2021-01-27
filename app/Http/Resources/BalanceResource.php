@@ -7,8 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class BalanceResource extends JsonResource
 {
-    public static $wrap = null;
-
     /**
      * Transform the resource into an array.
      *

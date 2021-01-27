@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources;
 
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ConfirmResource extends JsonResource
 {
-    protected $action;
-
     /**
      * Transform the resource into an array.
      *
@@ -18,7 +17,7 @@ class ConfirmResource extends JsonResource
     {
         return [
             'mobile' => $this->payable->mobile,
-            'action' => $this->action,
+            'action' => config('kaching.keywords.transactions.confirm'),
             'amount' => $this->amount,
             'wallet' => $this->wallet->slug,
             'balance' => $this->wallet->balance,
@@ -26,10 +25,10 @@ class ConfirmResource extends JsonResource
         ];
     }
 
-    public function __construct($resource, $action)
+    public function withResponse($request, $response)
     {
-        parent::__construct($resource);
+        parent::withResponse($request, $response);
 
-        $this->action = $action;
+        $response->setStatusCode(Response::HTTP_OK);
     }
 }

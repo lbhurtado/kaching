@@ -31,9 +31,8 @@ Route::middleware(['auth:sanctum'])->prefix('transact')->group(function() {
         ->where('mobile', '^(09|\+?639)\d{9}$')
         ->where('amount', '[0-9]+');
 
-    Route::post('{action}/{uuid}/{otp}', [TransactController::class, 'confirm'])
-        ->where('action', 'confirm')
-        ->where('otp', '[0-9]+');
+    Route::post('{action}', \App\Actions\Wallet\ConfirmTransaction::class)
+        ->where('action', config('kaching.keywords.transactions.confirm'));
 
     Route::get('{action}', \App\Actions\Wallet\RevealBalance::class)
         ->where('action', 'balance');

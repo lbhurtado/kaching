@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Actions\Wallet\RevealBalance;
 use App\Actions\Wallet\CreateUserToken;
+use App\Actions\Wallet\ConfirmTransaction;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,6 +18,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         CreateUserToken::class,
         RevealBalance::class,
+        ConfirmTransaction::class
     ];
 
     /**
