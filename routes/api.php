@@ -31,13 +31,12 @@ Route::middleware(['auth:sanctum'])->prefix('transact')->group(function() {
         ->where('mobile', '^(09|\+?639)\d{9}$')
         ->where('amount', '[0-9]+');
 
-    Route::get('{action}/{mobile}/{wallet?}', [TransactController::class, 'balance'])
-        ->where('action', 'balance')
-        ->where('mobile', '^(09|\+?639)\d{9}$');
-
     Route::post('{action}/{uuid}/{otp}', [TransactController::class, 'confirm'])
         ->where('action', 'confirm')
         ->where('otp', '[0-9]+');
+
+    Route::get('{action}', \App\Actions\Wallet\RevealBalance::class)
+        ->where('action', 'balance');
 });
 
 Route::post('/token', \App\Actions\Wallet\CreateUserToken::class);

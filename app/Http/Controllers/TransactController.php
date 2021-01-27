@@ -8,7 +8,6 @@ use OTPHP\TOTPInterface;
 use Bavix\Wallet\Models\Wallet;
 use Bavix\Wallet\Models\Transaction;
 use App\Http\Resources\CreditResource;
-use App\Http\Resources\BalanceResource;
 use App\Http\Resources\ConfirmResource;
 use App\Http\Resources\TransferResource;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,19 +29,6 @@ class TransactController extends Controller
             ->credit($amount, $wallet, $action, self::UNCONFIRMED);
 
         return response(new CreditResource($transaction), Response::HTTP_OK);
-    }
-
-    /**
-     * @param string $mobile
-     * @param string $action
-     * @param string $wallet
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
-     */
-    public function balance(string $action, string $mobile, string $wallet = 'default')
-    {
-        $contact = Contact::bearing($mobile);
-
-        return response(new BalanceResource($contact, $wallet), Response::HTTP_OK);
     }
 
     /**

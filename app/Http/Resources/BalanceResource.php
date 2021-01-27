@@ -2,32 +2,33 @@
 
 namespace App\Http\Resources;
 
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class BalanceResource extends JsonResource
 {
-    protected $wallet;
+    public static $wrap = null;
 
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
-            'mobile' => $this->mobile,
+            'mobile' => $this->holder->mobile,
             'action' => $request->action,
-            'amount' => $this->getWallet($this->wallet)->balance,
-            'wallet' => $this->wallet
+            'amount' => $this->balance,
+            'wallet' => $this->slug
         ];
     }
 
-    public function __construct($resource, $wallet)
+    public function withResponse($request, $response)
     {
-        parent::__construct($resource);
+        parent::withResponse($request, $response);
 
-        $this->wallet = $wallet;
+        $response->setStatusCode(Response::HTTP_OK);
     }
 }

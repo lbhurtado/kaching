@@ -212,6 +212,30 @@ class TransactAPITest extends TestCase
         }
     }
 
+//    /** @test */
+//    public function transaction_balance_default()
+//    {
+//        /*** arrange ***/
+//        $mobile = '09171234567';
+//        $action = 'balance';
+//        $amount = $this->faker->numberBetween(100,1000);
+//
+//        /*** act ***/
+//        ($contact = Contact::factory(compact('mobile'))->create())->deposit($amount);
+//        $response = $this->actingAs($this->user)->get("/api/transact/balance/$mobile");
+//
+//        /*** assert ***/
+//        $response
+//            ->assertStatus(Response::HTTP_OK)
+//            ->assertJson([
+//                'mobile' => $contact->mobile,
+//                'action' => $action,
+//                'amount' => $amount,
+//                'wallet' => 'default'
+//            ]);
+//        $this->assertEquals(0, $contact->balance - $amount);
+//    }
+
     /** @test */
     public function transaction_balance_default()
     {
@@ -221,8 +245,21 @@ class TransactAPITest extends TestCase
         $amount = $this->faker->numberBetween(100,1000);
 
         /*** act ***/
-        ($contact = Contact::factory(compact('mobile'))->create())->deposit($amount);
-        $response = $this->actingAs($this->user)->get("/api/transact/balance/$mobile");
+        ($contact = Contact::factory($data = compact('mobile'))->create())
+            ->deposit($amount);
+
+        $response = $this->actingAs($this->user)->call(
+            'GET',
+            '/api/transact/balance',
+            $data,
+            [],
+            [],
+            $this->transformHeadersToServerVars([
+                'CONTENT_LENGTH' => mb_strlen(json_encode($data), '8bit'),
+                'CONTENT_TYPE' => 'application/json',
+                'Accept' => 'application/json',
+            ])
+        );
 
         /*** assert ***/
         $response
@@ -250,7 +287,18 @@ class TransactAPITest extends TestCase
 
             /*** act ***/
             $contact->getWallet($wallet)->deposit($amount);
-            $response = $this->actingAs($this->user)->get("/api/transact/balance/$mobile/$wallet");
+            $response = $this->actingAs($this->user)->call(
+                'GET',
+                '/api/transact/balance',
+                $data = compact('mobile', 'wallet'),
+                [],
+                [],
+                $this->transformHeadersToServerVars([
+                    'CONTENT_LENGTH' => mb_strlen(json_encode($data), '8bit'),
+                    'CONTENT_TYPE' => 'application/json',
+                    'Accept' => 'application/json',
+                ])
+            );
 
             /*** assert ***/
             $response
