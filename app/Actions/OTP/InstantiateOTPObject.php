@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Wallet;
+namespace App\Actions\OTP;
 
 use OTPHP\Factory;
 use OTPHP\OTPInterface;

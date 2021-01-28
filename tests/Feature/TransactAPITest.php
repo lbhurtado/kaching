@@ -6,7 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Contact;
 use Bavix\Wallet\Models\Transaction;
-use App\Actions\Wallet\InstantiateOTPObject;
+use App\Actions\OTP\InstantiateOTPObject;
 use App\Actions\Wallet\InstantiateTransaction;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -37,24 +37,31 @@ class TransactAPITest extends TestCase
         $amount = $this->faker->numberBetween(100,1000);
 
         /*** act ***/
-        $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount");
+        $response = $this->actingAs($this->user)
+            ->postJson(
+                "/api/transact/$action",
+                $data = compact('mobile', 'amount'),
+                $this->getHeaderData($data)
+            );
 
         /*** assert ***/
         $response
-            ->assertStatus(Response::HTTP_OK)
+            ->assertStatus(Response::HTTP_CREATED)
             ->assertJson([
-                'mobile' => $contact->mobile,
-                'action' => $action,
-                'amount' => $amount,
-                'wallet' => 'default',
-                'balance' => $contact->balance,
-                'confirmed' => false,
+                'data' => [
+                    'mobile' => $contact->mobile,
+                    'action' => $action,
+                    'amount' => $amount,
+                    'wallet' => 'default',
+                    'balance' => $contact->balance,
+                    'confirmed' => false,
+                ],
             ]);
         $this->assertEquals(0, $contact->balance);
 
         /*** arrange ***/
         $action = 'confirm';
-        $uuid = $response->json('uuid');
+        $uuid = $response->json('data.uuid');
         $transaction = InstantiateTransaction::run($uuid);
         $otp = InstantiateOTPObject::run($transaction)->now();
 
@@ -94,25 +101,32 @@ class TransactAPITest extends TestCase
             $amount = $this->faker->numberBetween(100,1000);
 
             /*** act ***/
-            $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount/$wallet");
+            $response = $this->actingAs($this->user)
+                ->postJson(
+                    "/api/transact/$action",
+                    $data = compact('mobile', 'amount', 'wallet'),
+                    $this->getHeaderData($data)
+                );
 
             /*** assert ***/
             $response
-                ->assertStatus(Response::HTTP_OK)
+                ->assertStatus(Response::HTTP_CREATED)
                 ->assertJson([
-                    'mobile' => $contact->mobile,
-                    'action' => $action,
-                    'amount' => $amount,
-                    'wallet' => $wallet,
-                    'balance' => ($digital_wallet = $contact->getWallet($wallet))->balance,
-                    'confirmed' => false
+                    'data' => [
+                        'mobile' => $contact->mobile,
+                        'action' => $action,
+                        'amount' => $amount,
+                        'wallet' => $wallet,
+                        'balance' => ($digital_wallet = $contact->getWallet($wallet))->balance,
+                        'confirmed' => false
+                    ],
                 ]);
             $this->assertTrue($contact->hasWallet($wallet));
             $this->assertEquals(0, $digital_wallet->balance);
 
             /*** arrange ***/
             $action = 'confirm';
-            $uuid = $response->json('uuid');
+            $uuid = $response->json('data.uuid');
             $transaction = InstantiateTransaction::run($uuid);
             $otp = InstantiateOTPObject::run($transaction)->now();
 
@@ -151,23 +165,30 @@ class TransactAPITest extends TestCase
         /*** act ***/
         $contact = tap(Contact::factory(compact('mobile'))->create())
             ->deposit($initial_amount = $this->faker->numberBetween(1000,10000), [], true);
-        $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount");
+        $response = $this->actingAs($this->user)
+            ->postJson(
+                "/api/transact/$action",
+                $data = compact('mobile', 'amount'),
+                $this->getHeaderData($data)
+            );
 
         /*** assert ***/
         $response
-            ->assertStatus(Response::HTTP_OK)
+            ->assertStatus(Response::HTTP_CREATED)
             ->assertJson([
-                'mobile' => $contact->mobile,
-                'action' => $action,
-                'amount' => $amount,
-                'wallet' => 'default',
-                'balance' => $contact->balance,
-                'confirmed' => false
+                'data' => [
+                    'mobile' => $contact->mobile,
+                    'action' => $action,
+                    'amount' => $amount,
+                    'wallet' => 'default',
+                    'balance' => $contact->balance,
+                    'confirmed' => false
+                ],
             ]);
         $this->assertEquals( $initial_amount, $contact->balance);
 
         /*** arrange ***/
-        $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+        $explicitTransaction = $this->getExplicitTransaction($response->json('data.uuid'));
 
         /*** act ***/
         $contact->getWallet('default')->confirm($explicitTransaction);
@@ -191,26 +212,34 @@ class TransactAPITest extends TestCase
             /*** act ***/
             $contact->getWallet($wallet)
                 ->deposit($initial_amount = $this->faker->numberBetween(1000,10000));
-            $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount/$wallet");
+//            $response = $this->actingAs($this->user)->post("/api/transact/$action/$mobile/$amount/$wallet");
+            $response = $this->actingAs($this->user)
+                ->postJson(
+                    "/api/transact/$action",
+                    $data = compact('mobile', 'amount', 'wallet'),
+                    $this->getHeaderData($data)
+                );
 
             /*** arrange ***/
-            $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+            $explicitTransaction = $this->getExplicitTransaction($response->json('data.uuid'));
 
             /*** assert ***/
             $response
-                ->assertStatus(Response::HTTP_OK)
+                ->assertStatus(Response::HTTP_CREATED)
                 ->assertJson([
-                    'mobile' => $contact->mobile,
-                    'action' => $action,
-                    'amount' => $amount,
-                    'wallet' => $wallet,
-                    'balance' => ($digital_wallet = $contact->getWallet($wallet))->balance,
-                    'confirmed' => false
+                    'data' => [
+                        'mobile' => $contact->mobile,
+                        'action' => $action,
+                        'amount' => $amount,
+                        'wallet' => $wallet,
+                        'balance' => ($digital_wallet = $contact->getWallet($wallet))->balance,
+                        'confirmed' => false
+                    ],
                 ]);
             $this->assertEquals( $initial_amount, $digital_wallet->balance);
 
             /*** arrange ***/
-            $explicitTransaction = $this->getExplicitTransaction($response->json('uuid'));
+            $explicitTransaction = $this->getExplicitTransaction($response->json('data.uuid'));
 
             /*** act ***/
             $contact->getWallet($wallet)->confirm($explicitTransaction);
@@ -311,7 +340,12 @@ class TransactAPITest extends TestCase
         $amount = $this->faker->numberBetween(100,1000);
 
         /*** act ***/
-        $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount");
+        $response = $this->actingAs($this->user)
+            ->postJson(
+                "/api/transact/$action",
+                $data = compact('from', 'to', 'amount'),
+                $this->getHeaderData($data)
+            );
 
         /*** assert ***/
         $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -320,18 +354,25 @@ class TransactAPITest extends TestCase
 
         /*** act ***/
         $origin->deposit($amount);
-        $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount");
+        $response = $this->actingAs($this->user)
+            ->postJson(
+                "/api/transact/$action",
+                $data,
+                $this->getHeaderData($data)
+            );
 
         /*** act ***/
         $response
             ->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'action' => $action,
-                'from' => $origin->mobile,
-                'to' => $destination->mobile,
-                'amount' => $amount,
-                'wallet' => 'default',
-                'balance' => $origin->balance
+                'data' => [
+                    'action' => $action,
+                    'from' => $origin->mobile,
+                    'to' => $destination->mobile,
+                    'amount' => $amount,
+                    'wallet' => 'default',
+                    'balance' => $origin->balance
+                ]
             ]);
 
         /*** assert ***/
@@ -340,7 +381,7 @@ class TransactAPITest extends TestCase
     }
 
     /** @test */
-    public function transaction_transfer_genx_pcso()
+    public function transaction_transfer_genx_pcso()//TODO: Yo, this is next. Just repeat the transfer default above
     {
         $from = '09171234567';
         $to = '09187654321';
@@ -351,7 +392,12 @@ class TransactAPITest extends TestCase
             $amount = $this->faker->numberBetween(100,1000);
 
             /*** act ***/
-            $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount/$wallet");
+            $response = $this->actingAs($this->user)
+                ->postJson(
+                    "/api/transact/$action",
+                    $data = compact('from', 'to', 'amount', 'wallet'),
+                    $this->getHeaderData($data)
+                );
 
             /*** assert ***/
             $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -362,18 +408,25 @@ class TransactAPITest extends TestCase
 
             /*** act ***/
             $origin->getWallet($wallet)->deposit($amount + 1000);
-            $response = $this->actingAs($this->user)->post("/api/transact/$action/$from/$to/$amount/$wallet");
+            $response = $this->actingAs($this->user)
+                ->postJson(
+                    "/api/transact/$action",
+                    $data,
+                    $this->getHeaderData($data)
+                );
 
             /*** assert ***/
             $response
                 ->assertStatus(Response::HTTP_OK)
                 ->assertJson([
-                    'action' => $action,
-                    'from' => $origin->mobile,
-                    'to' => $destination->mobile,
-                    'amount' => $amount,
-                    'wallet' => $wallet,
-                    'balance' => $origin->getWallet($wallet)->balance
+                    'data' => [
+                        'action' => $action,
+                        'from' => $origin->mobile,
+                        'to' => $destination->mobile,
+                        'amount' => $amount,
+                        'wallet' => $wallet,
+                        'balance' => $origin->getWallet($wallet)->balance
+                    ],
                 ]);
             $this->assertEquals(1000, $origin->getWallet($wallet)->balance);
             $this->assertEquals($amount, $destination->getWallet($wallet)->balance);

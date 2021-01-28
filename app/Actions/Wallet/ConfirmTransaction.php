@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Bavix\Wallet\Models\Transaction;
 use Lorisleiva\Actions\ActionRequest;
 use App\Http\Resources\ConfirmResource;
+use App\Actions\OTP\InstantiateOTPObject;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ConfirmTransaction

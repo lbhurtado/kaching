@@ -6,8 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransferResource extends JsonResource
 {
-    protected $wallet;
-
     /**
      * Transform the resource into an array.
      *
@@ -19,18 +17,11 @@ class TransferResource extends JsonResource
         return [
             'from' => $this->formatMobile($request->from),
             'to' => $this->formatMobile($request->to),
-            'action' => $request->action,
+            'action' => 'transfer',
             'amount' => $request->amount,
-            'wallet' => $this->wallet,
+            'wallet' => $this->slug,
             'balance' => $this->balance
         ];
-    }
-
-    public function __construct($resource, $wallet)
-    {
-        parent::__construct($resource);
-
-        $this->wallet = $wallet;
     }
 
     protected function formatMobile($mobile)

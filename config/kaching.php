@@ -16,7 +16,13 @@ return [
     'keywords' => [
         'transactions' => [
             'balance' => env('KEYWORD_TRANSACTION_BALANCE', 'balance'),
-            'confirm' => env('KEYWORD_TRANSACTION_CONFIRM', 'confirm')
+            'confirm' => env('KEYWORD_TRANSACTION_CONFIRM', 'confirm'),
+            'transfer' => env('KEYWORD_TRANSACTION_TRANSFER', 'transfer'),
+            'deposit' => env('KEYWORD_TRANSACTION_DEPOSIT', 'deposit'),
+            'withdraw' => env('KEYWORD_TRANSACTION_WITHDRAW', 'withdraw'),
         ],
+    ],
+    'label' => [
+        'otp' => env('APP_NAME', 'Test'),
     ],
 ];

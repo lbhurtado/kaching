@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{TransactController};
+use App\Actions\Wallet\{TransferCredits, DepositCredits, WithdrawCredits, ConfirmTransaction, RevealBalance, CreateUserToken};
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -19,23 +20,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->prefix('transact')->group(function() {
-    Route::post('{action}/{from}/{to}/{amount}/{wallet?}', [TransactController::class, 'transfer'])
-        ->where('action', 'transfer')
-        ->where('from', '^(09|\+?639)\d{9}$')
-        ->where('to', '^(09|\+?639)\d{9}$')
-        ->where('amount', '[0-9]+')
-    ;
-
-    Route::post('{action}/{mobile}/{amount}/{wallet?}', [TransactController::class, 'credit'])
-        ->where('action', 'deposit|withdraw')
-        ->where('mobile', '^(09|\+?639)\d{9}$')
-        ->where('amount', '[0-9]+');
-
-    Route::post('{action}', \App\Actions\Wallet\ConfirmTransaction::class)
-        ->where('action', config('kaching.keywords.transactions.confirm'));
-
-    Route::get('{action}', \App\Actions\Wallet\RevealBalance::class)
-        ->where('action', 'balance');
+    Route::get(config('kaching.keywords.transactions.balance'), RevealBalance::class);
+    Route::post(config('kaching.keywords.transactions.transfer'), TransferCredits::class);
+    Route::post(config('kaching.keywords.transactions.deposit'), DepositCredits::class);
+    Route::post(config('kaching.keywords.transactions.withdraw'), WithdrawCredits::class);
+    Route::post(config('kaching.keywords.transactions.confirm'), ConfirmTransaction::class);
 });
 
-Route::post('/token', \App\Actions\Wallet\CreateUserToken::class);
+Route::post('/token', CreateUserToken::class);

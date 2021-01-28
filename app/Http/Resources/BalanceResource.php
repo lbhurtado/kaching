@@ -17,7 +17,7 @@ class BalanceResource extends JsonResource
     {
         return [
             'mobile' => $this->holder->mobile,
-            'action' => $request->action,
+            'action' => $this->getAction(),
             'amount' => $this->balance,
             'wallet' => $this->slug
         ];
@@ -28,5 +28,10 @@ class BalanceResource extends JsonResource
         parent::withResponse($request, $response);
 
         $response->setStatusCode(Response::HTTP_OK);
+    }
+
+    protected function getAction()
+    {
+        return config('kaching.keywords.transactions.balance');
     }
 }

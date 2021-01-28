@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CreditResource extends JsonResource
@@ -16,7 +17,7 @@ class CreditResource extends JsonResource
     {
         return [
             'mobile' => $this->payable->mobile,
-            'action' => $request->action,
+            'action' => $this->action,
             'amount' => $request->amount,
             'wallet' => $this->wallet->slug,
             'balance' => $this->payable->getWallet($this->wallet->slug)->balance,
@@ -25,5 +26,12 @@ class CreditResource extends JsonResource
             'created_at' => $this->created_at,
             'confirmed' => $this->confirmed
         ];
+    }
+
+    public function withResponse($request, $response)
+    {
+        parent::withResponse($request, $response);
+
+        $response->setStatusCode(Response::HTTP_CREATED);
     }
 }
