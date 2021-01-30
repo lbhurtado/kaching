@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->prefix('transact')->group(function() {
     Route::get(config('kaching.keywords.transactions.balance'), RevealBalance::class);
+    Route::get('balances', \App\Actions\Wallet\RevealBalances::class);
     Route::post(config('kaching.keywords.transactions.transfer'), TransferCredits::class);
     Route::post(config('kaching.keywords.transactions.deposit'), DepositCredits::class);
     Route::post(config('kaching.keywords.transactions.withdraw'), WithdrawCredits::class);

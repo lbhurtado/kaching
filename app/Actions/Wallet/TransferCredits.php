@@ -3,6 +3,7 @@
 namespace App\Actions\Wallet;
 
 use Bavix\Wallet\Models\Wallet;
+use Illuminate\Console\Command;
 use Illuminate\Validation\Rule;
 use Bavix\Wallet\Models\Transfer;
 use Lorisleiva\Actions\ActionRequest;
@@ -12,6 +13,10 @@ use \App\Http\Resources\TransferResource;
 class TransferCredits
 {
     use AsAction;
+
+    public $commandSignature = 'wallet:transfer {from} {to} {amount}';
+
+    public $commandDescription = 'Transfer amount from one mobile wallet to another.';
 
     public function handle(Wallet $origin, Wallet $destination, int $amount): Transfer
     {
@@ -59,5 +64,15 @@ class TransferCredits
     public function jsonResponse(Wallet $wallet): TransferResource
     {
         return new TransferResource($wallet);
+    }
+
+    public function asCommand(Command $command)
+    {
+        $origin = InstantiateContact::run($command->argument('from'));
+        $destination = InstantiateContact::run($command->argument('to'));
+        $amount = $command->argument('amount');
+
+        $this->handle($origin, $destination, $amount);
+        $command->line('Done!');
     }
 }

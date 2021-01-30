@@ -25,4 +25,10 @@ return [
     'label' => [
         'otp' => env('APP_NAME', 'Test'),
     ],
+    'permissions' => [
+        'admin'      => ['send message', 'issue command', 'broadcast message'],
+        'agent'      => ['issue command'],
+        'cashier'    => ['issue command'],
+        'subscriber' => ['send message' ],
+    ],
 ];

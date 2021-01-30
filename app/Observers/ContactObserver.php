@@ -28,6 +28,8 @@ class ContactObserver
      */
     public function created(Contact $contact)
     {
+        $contact->assignRole('subscriber');
+
         $contact->createWallet(config('wallet.wallet.default'));
 
         foreach (config('wallet.wallet.wallets') as $wallet) {

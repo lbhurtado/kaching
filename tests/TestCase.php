@@ -16,7 +16,7 @@ abstract class TestCase extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-
+        $this->artisan('db:seed', ['--class' => 'RoleSeeder']);
         (new RouteServiceProvider($this->app))
             ->mapSMSRoutes();//TODO change this to MissiveServiceProvider - change include to require
 
